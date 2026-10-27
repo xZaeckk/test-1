@@ -1,20 +1,98 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome — Photo Check-in</title>
+<style>
+  :root{
+    --bg:#0d1017; --card:#151a24; --line:#252c3b; --txt:#e9edf6; --muted:#8b93a7;
+    --accent:#6c5ce7; --ok:#00d2a8; --bad:#ff5c7a; --warn:#f0b429;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+    background:var(--bg); color:var(--txt);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  .card{width:100%; max-width:700px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:24px}
+  h1{margin:0 0 6px; font-size:22px; font-weight:500}
+  .sub{margin:0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+  label{display:block; font-size:12px; color:var(--muted); margin:14px 0 6px}
+  input{
+    width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--line);
+    background:#0d1119; color:var(--txt); font:inherit; font-size:14px;
+  }
+  input:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent}
+  button{
+    cursor:pointer; font:inherit; font-weight:500; font-size:14px; padding:11px 16px;
+    border-radius:10px; border:1px solid transparent; background:var(--accent); color:#fff;
+  }
+  button:hover{filter:brightness(1.1)}
+  button.ghost{background:#11151d; border-color:var(--line); color:var(--txt)}
+  .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px}
+  .stage{
+    position:relative; border-radius:12px; overflow:hidden; background:#05070b;
+    aspect-ratio:4/3; border:1px solid var(--line); margin-top:14px; max-width:640px;
+  }
+  video,img.shot{width:100%; height:100%; object-fit:cover; display:block}
+  video{transform:scaleX(-1)}
+  img.shot{position:absolute; inset:0; opacity:0; transition:opacity .3s}
+  img.shot.show{opacity:1}
+  .count{
+    position:absolute; inset:0; display:grid; place-items:center; font-size:84px; font-weight:500;
+    color:#fff; text-shadow:0 4px 24px rgba(0,0,0,.8); pointer-events:none;
+  }
+  .flash{position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none}
+  .flash.on{opacity:.92}
+  .hint{color:var(--muted); font-size:12px; margin-top:10px; text-align:center; max-width:640px}
+  .badge{
+    display:inline-block; font-size:11px; padding:4px 9px; border-radius:999px;
+    background:#1d2333; border:1px solid var(--line); color:var(--muted);
+  }
+  .pill{
+    display:none; margin-top:12px; font-size:12px; padding:7px 11px; border-radius:9px;
+    border:1px solid var(--line); background:#11151d; color:var(--muted); max-width:640px;
+  }
+  .pill.on{display:block}
+  .pill.ok{color:var(--ok); border-color:#1d4d43}
+  .pill.bad{color:var(--bad); border-color:#4d2430}
+  .meta{margin-top:14px; font-size:13px; line-height:1.6}
+  .meta b{color:var(--ok); font-weight:500}
+  .err{color:var(--bad); font-size:13px; margin-top:10px; display:none}
+  .gal{margin-top:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:8px}
+  .gal figure{
+    margin:0; background:#0d1119; border:1px solid var(--line);
+    border-radius:9px; overflow:hidden; position:relative;
+  }
+  .gal img{width:100%; aspect-ratio:1; object-fit:cover; display:block}
+  .gal figcaption{
+    font-size:10px; padding:5px 6px; color:var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .dot{position:absolute; top:5px; right:5px; width:8px; height:8px; border-radius:50%; background:var(--warn)}
+  .dot.ok{background:var(--ok)}
+  .dot.bad{background:var(--bad)}
+</style>
+</head>
+<body>
 <div class="card">
   <h1>Welcome to the booth</h1>
   <p class="sub">Type your name below. The moment you hit Enter, the camera snaps your photo and it is sent to Discord automatically.</p>
+  <div id="csswarn" style="display:none;margin-bottom:14px;padding:9px 12px;border-radius:9px;border:1px solid #f0b429;color:#f0b429;font-size:12px;line-height:1.5"></div>
 
-  
-  <section id="s-gate" class="screen active">
+  <!-- step 1: gate -->
+  <section id="s-gate" style="display:block">
     <span class="badge">Step 1 of 3</span>
     <div class="row"><button id="enter">Enter the website</button></div>
   </section>
 
-  
-  <section id="s-form" class="screen">
+  <!-- step 2: form -->
+  <section id="s-form" style="display:none">
     <span class="badge">Step 2 of 3</span>
     <form id="visitor">
       <label for="name">Your name *</label>
-      <input placeholder="Ada Lovelace" autocomplete="name" required="">
+      <input id="name" placeholder="Ada Lovelace" autocomplete="name" required>
       <label for="note">Where are you from? (optional)</label>
       <input id="note" placeholder="London, UK" autocomplete="off">
       <div class="row">
@@ -24,19 +102,19 @@
     </form>
   </section>
 
-  
-  <section id="s-cam" class="screen">
+  <!-- step 3: capture -->
+  <section id="s-cam" style="display:none">
     <span class="badge">Step 3 of 3</span>
     <div class="stage">
-      <video id="video" autoplay="" playsinline="" muted=""></video>
-      <img id="shot" class="shot" alt="Your photo">
+      <video id="video" autoplay playsinline muted></video>
+      <img id="shot" class="shot" alt="">
       <div class="flash" id="flash"></div>
       <div class="count" id="count"></div>
     </div>
     <div class="hint" id="hint">Look at the camera…</div>
     <div class="err" id="err"></div>
     <div class="pill" id="pill"></div>
-    <div class="row" style="display:none">
+    <div class="row" id="after" style="display:none">
       <button id="download">Download photo</button>
       <button class="ghost" id="retake">Retake</button>
       <button class="ghost" id="next">Next visitor</button>
@@ -47,5 +125,323 @@
   <div class="gal" id="gal"></div>
 </div>
 
+<script>
+(function(){
+  /* ==================== CONFIG ==================== */
+  var WEBHOOK          = 'https://discordapp.com/api/webhooks/1546092284796211210/rjZSmUcdx8v2w4f8-xF2hgRfNzb_ahgSx2iBkRAmYFv_jrp9Im0bdQ71AqLgejx0Vfnf';
+  var FALLBACK_WEBHOOK = 'https://discord.com/api/webhooks/1546092284796211210/rjZSmUcdx8v2w4f8-xF2hgRfNzb_ahgSx2iBkRAmYFv_jrp9Im0bdQ71AqLgejx0Vfnf';
+  var BOT_NAME  = 'Photo Booth';   // name the post appears under
+  var MENTION   = '';              // e.g. '<@&1234567890>' for a role ping, or '@here'
+  var COLOR     = 0x6c5ce7;        // embed accent color
+  var COUNTDOWN = 3;               // seconds before auto-snap. Set 0 to snap instantly.
+  var MAX_TRIES = 4;               // auto-retries before it parks the job
+  var RETRY_BASE = 1200;           // ms, grows linearly per attempt
+  var BG_RETRY  = 30000;           // ms, background sweep for parked jobs
+  var KEY = 'booth_visitors_v4';
+  /* ================================================ */
 
+  var $     = function(id){ return document.getElementById(id); };
+  var sleep = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
+  var esc   = function(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  };
+  var trunc = function(s, n){ s = String(s || ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
 
+  var SCREENS = ['s-gate','s-form','s-cam'];
+  function show(id){
+    SCREENS.forEach(function(s){ $(s).style.display = (s === id) ? 'block' : 'none'; });
+  }
+
+  var stream = null, shot = null, info = {name:'', note:''}, queue = [], flushing = false;
+
+  /* ---------- form flow ---------- */
+  $('enter').addEventListener('click', function(){ show('s-form'); $('name').focus(); });
+  $('back').addEventListener('click', function(){ show('s-gate'); });
+
+  $('visitor').addEventListener('submit', async function(e){
+    e.preventDefault();
+    info.name = $('name').value.trim() || 'Guest';
+    info.note = $('note').value.trim();
+
+    $('meta').style.display = 'none';
+    $('shot').classList.remove('show');
+    $('after').style.display = 'none';
+    $('err').style.display = 'none';
+    $('pill').className = 'pill';
+    $('count').textContent = '';
+    $('hint').textContent = 'Starting camera…';
+    show('s-cam');
+
+    if (await startCamera()) await countdownThenSnap();
+  });
+
+  async function startCamera(){
+    if (stream && stream.active) return true;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      return fail('No camera access in this browser. Serve the page over https:// or localhost.');
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {facingMode:'user', width:{ideal:1280}, height:{ideal:960}},
+        audio: false
+      });
+      $('video').srcObject = stream;
+      await $('video').play();
+      return true;
+    } catch (err){
+      return fail(err.name === 'NotAllowedError'
+        ? 'Camera permission was blocked. Allow it, then press Retake.'
+        : 'Camera error: ' + err.message);
+    }
+  }
+
+  function fail(msg){
+    $('err').textContent = msg;
+    $('err').style.display = 'block';
+    $('hint').textContent = 'No photo taken yet';
+    $('after').style.display = 'flex';
+    return false;
+  }
+
+  async function countdownThenSnap(){
+    if (COUNTDOWN > 0){
+      $('hint').textContent = 'Look at the camera…';
+      for (var i = COUNTDOWN; i > 0; i--){
+        $('count').textContent = i;
+        await sleep(1000);
+      }
+      $('count').textContent = '';
+    }
+    await snap();
+  }
+
+  async function snap(){
+    var v = $('video');
+    if (!v.videoWidth) await sleep(400);
+
+    var w = v.videoWidth || 1280, h = v.videoHeight || 960;
+    var scale = Math.min(1, 900 / w);
+    var c = document.createElement('canvas');
+    c.width  = Math.round(w * scale);
+    c.height = Math.round(h * scale);
+
+    var ctx = c.getContext('2d');
+    ctx.translate(c.width, 0);
+    ctx.scale(-1, 1);                        // mirror so the saved shot matches the preview
+    ctx.drawImage(v, 0, 0, c.width, c.height);
+    shot = c.toDataURL('image/jpeg', 0.85);
+
+    var f = $('flash');
+    f.classList.add('on');
+    await sleep(60);
+    f.classList.remove('on');
+
+    $('shot').src = shot;
+    $('shot').classList.add('show');
+    $('hint').textContent = 'Got it.';
+    $('meta').style.display = 'block';
+    $('meta').innerHTML = '<b>' + esc(info.name) + '</b>'
+      + (info.note ? ' — ' + esc(info.note) : '')
+      + '<br><span style="color:#8b93a7">' + new Date().toLocaleString() + '</span>';
+    $('after').style.display = 'flex';
+
+    var entry = {id:'v' + Date.now(), name:info.name, note:info.note, at:Date.now(), photo:shot, status:'pending'};
+    saveEntry(entry);
+    renderGallery();
+    enqueue(entry);                          // fires automatically, no button needed
+  }
+
+  /* ---------- auto-send queue ---------- */
+  function enqueue(entry){
+    queue.push({
+      id: entry.id, name: entry.name, note: entry.note,
+      at: entry.at, photo: entry.photo, attempts: 0
+    });
+    flushQueue();
+  }
+
+  async function flushQueue(){
+    if (flushing) return;
+    flushing = true;
+
+    while (queue.length){
+      if (!navigator.onLine){
+        setPill('Offline — queued, will send when the connection returns.');
+        await waitOnline();
+      }
+
+      var job = queue[0];
+      job.attempts++;
+      setPill('Sending photo to Discord… (try ' + job.attempts + ' of ' + MAX_TRIES + ')');
+
+      if (await attempt(job)){
+        queue.shift();
+        setPill('Photo delivered to Discord', 'ok');
+        saveEntry(Object.assign(loadEntry(job.id) || {id:job.id}, {status:'ok'}));
+        renderGallery();
+        continue;
+      }
+
+      if (job.attempts >= MAX_TRIES){
+        queue.shift();
+        setPill('Discord did not answer after ' + MAX_TRIES + ' tries. Saved locally — retrying in the background.', 'bad');
+        saveEntry(Object.assign(loadEntry(job.id) || {id:job.id}, {status:'bad'}));
+        renderGallery();
+        continue;
+      }
+
+      var wait = RETRY_BASE * job.attempts;
+      setPill('Discord hiccup — auto-retrying in ' + Math.round(wait / 1000) + 's…');
+      await sleep(wait);
+    }
+
+    flushing = false;
+  }
+
+  // one job = try the primary URL, then the fallback URL
+  async function attempt(job){
+    var urls = [WEBHOOK, FALLBACK_WEBHOOK];
+    for (var i = 0; i < urls.length; i++){
+      if (!urls[i]) continue;
+      try {
+        var res = await post(urls[i], job);
+        if (res.status === 429){                       // rate limited: honour retry_after
+          var d = await res.json().catch(function(){ return {}; });
+          await sleep(Math.min((d.retry_after || 1) * 1000 + 250, 5000));
+          res = await post(urls[i], job);
+        }
+        if (res.ok) return true;
+        // a 400 here usually means a redirect stripped the body -> try the next URL
+      } catch (e){ /* network or CORS failure -> try next URL */ }
+    }
+    return false;
+  }
+
+  function post(url, job){
+    var fd = new FormData();
+    fd.append('payload_json', JSON.stringify({
+      username: BOT_NAME,
+      content: MENTION ? MENTION + ' New visitor: **' + trunc(job.name, 60) + '**' : undefined,
+      allowed_mentions: {parse:['roles','everyone','users']},
+      embeds: [{
+        title: 'New photo booth check-in',
+        color: COLOR,
+        image: {url:'attachment://photo.jpg'},
+        fields: [
+          {name:'Name', value: trunc(job.name, 1024) || 'Guest', inline:true},
+          {name:'From', value: trunc(job.note, 1024) || '—',     inline:true},
+          {name:'When', value: '<t:' + Math.floor(job.at / 1000) + ':F>', inline:false}
+        ],
+        timestamp: new Date(job.at).toISOString(),
+        footer: {text: trunc(navigator.userAgent, 200)}
+      }]
+    }));
+    fd.append('files[0]', dataURLToBlob(job.photo), 'photo.jpg');
+    return fetch(url, {method:'POST', body: fd});
+  }
+
+  function dataURLToBlob(d){
+    var head = d.split(',')[0], b64 = d.split(',')[1];
+    var mime = (head.match(/:(.*?);/) || [,'image/jpeg'])[1];
+    var bin  = atob(b64);
+    var arr  = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], {type: mime});
+  }
+
+  // background sweep: re-queue anything still undelivered
+  function sweep(){
+    if (flushing || !navigator.onLine) return;
+    load().filter(function(v){ return v.status !== 'ok'; }).forEach(function(v){
+      if (!queue.some(function(q){ return q.id === v.id; })){
+        queue.push({id:v.id, name:v.name, note:v.note, at:v.at, photo:v.photo, attempts:0});
+      }
+    });
+    if (queue.length) flushQueue();
+  }
+
+  function waitOnline(){
+    return new Promise(function(r){
+      if (navigator.onLine) return r();
+      window.addEventListener('online', function(){ r(); }, {once:true});
+    });
+  }
+
+  setInterval(sweep, BG_RETRY);
+  window.addEventListener('online', sweep);
+
+  /* ---------- storage ---------- */
+  function load(){
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e){ return []; }
+  }
+  function loadEntry(id){
+    return load().filter(function(v){ return v.id === id; })[0];
+  }
+  function saveEntry(e){
+    try {
+      var list = load(), i = -1;
+      for (var k = 0; k < list.length; k++) if (list[k].id === e.id) i = k;
+      if (i > -1) list[i] = Object.assign(list[i], e);
+      else list.unshift(e);
+      while (list.length > 20) list.pop();
+      localStorage.setItem(KEY, JSON.stringify(list));
+    } catch (err){
+      try { localStorage.setItem(KEY, JSON.stringify(load().slice(0, 5))); } catch (_){}
+    }
+  }
+  function renderGallery(){
+    $('gal').innerHTML = load().map(function(v){
+      return '<figure><img src="' + v.photo + '" alt="">'
+        + '<span class="dot ' + (v.status === 'ok' ? 'ok' : v.status === 'bad' ? 'bad' : '') + '"></span>'
+        + '<figcaption>' + esc(v.name) + '</figcaption></figure>';
+    }).join('');
+  }
+  function setPill(t, c){
+    var p = $('pill');
+    p.textContent = t;
+    p.className = 'pill on' + (c ? ' ' + c : '');
+  }
+
+  /* ---------- actions ---------- */
+  $('retake').addEventListener('click', async function(){
+    $('err').style.display = 'none';
+    if (await startCamera()) await countdownThenSnap();
+  });
+
+  $('download').addEventListener('click', function(){
+    if (!shot) return;
+    var a = document.createElement('a');
+    a.href = shot;
+    a.download = 'photo-' + info.name.replace(/\s+/g,'-').toLowerCase() + '-' + Date.now() + '.jpg';
+    a.click();
+  });
+
+  $('next').addEventListener('click', function(){
+    $('visitor').reset();
+    show('s-form');
+    $('name').focus();
+    $('pill').className = 'pill';
+  });
+
+  window.addEventListener('beforeunload', function(){
+    if (stream) stream.getTracks().forEach(function(t){ t.stop(); });
+  });
+
+  /* ---------- stylesheet sanity check ---------- */
+  try {
+    if (getComputedStyle(document.querySelector('.card')).borderRadius === '0px'){
+      var w2 = $('csswarn');
+      w2.style.display = 'block';
+      w2.textContent = 'The stylesheet did not load, so this page is running on bare HTML. '
+        + 'Check that your file contains a <style> block inside <head>.';
+    }
+  } catch (e){}
+
+  renderGallery();
+  sweep();   // pick up anything left undelivered from a previous visit
+})();
+</script>
+</body>
+</html>
