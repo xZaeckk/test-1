@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0e13">
+  <title>NOVA — Find Your Plan</title>
+  <meta name="description" content="Choose the NOVA experience that fits your workflow. Compare options and get started.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0e13;
+      --panel: #121820;
+      --panel-hover: #171f29;
+      --line: #242e39;
+      --text: #eef2f6;
+      --muted: #98a4b2;
+      --green: #55df87;
+      --green-dark: #143a25;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.07);
+      background: rgba(11,14,19,.88); backdrop-filter: blur(16px);
+    }
+    .nav { height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-size: 16px; font-weight: 800; letter-spacing: -.04em; }
+    .brand-mark {
+      width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px;
+      color: #07140b; background: linear-gradient(145deg, #8af5ac, #35c76c);
+      box-shadow: 0 5px 22px rgba(85,223,135,.18);
+    }
+    .navlinks { display: flex; gap: 28px; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .navlinks a:hover { color: var(--text); }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: 1px solid transparent; border-radius: 11px; padding: 12px 17px;
+      font-size: 13px; font-weight: 750; transition: transform .18s, filter .18s, border-color .18s;
+    }
+    .button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .button-primary { background: var(--green); color: #07140b; }
+    .button-ghost { border-color: var(--line); background: #121820; color: var(--text); }
+    .hero {
+      position: relative; overflow: hidden; padding: 92px 0 72px; text-align: center;
+      background-image: radial-gradient(ellipse 600px 320px at 50% 0%, rgba(85,223,135,.13), transparent 72%),
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: auto, 40px 40px, 40px 40px;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 99px;
+      color: #8ef3ae; background: rgba(48,180,94,.09); border: 1px solid rgba(85,223,135,.23);
+      font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+    h1 { max-width: 780px; margin: 23px auto 0; font-size: clamp(38px, 6vw, 68px); line-height: 1.02; letter-spacing: -.065em; }
+    h1 span { color: var(--green); }
+    .hero-copy { max-width: 560px; margin: 20px auto 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+    .hero-actions { display: flex; justify-content: center; gap: 11px; flex-wrap: wrap; margin-top: 30px; }
+    .trust { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 25px; color: #7d8997; font-size: 12px; }
+    .trust strong { color: #cbd5df; }
+    .section { padding: 32px 0 82px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 26px; }
+    .section-kicker { margin: 0 0 9px; color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h2 { margin: 0; font-size: clamp(27px, 3.4vw, 36px); letter-spacing: -.05em; }
+    .section-desc { margin: 9px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .search { width: min(250px, 100%); padding: 12px 14px; border-radius: 11px; border: 1px solid var(--line); outline: none; color: var(--text); background: #10151c; }
+    .search:focus, .name-input:focus { border-color: rgba(85,223,135,.65); box-shadow: 0 0 0 3px rgba(85,223,135,.08); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      position: relative; display: flex; flex-direction: column; min-height: 290px; padding: 22px;
+      border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(155deg, #151c25, #10151c);
+      transition: transform .2s, border-color .2s, background .2s; overflow: hidden;
+    }
+    .card::after { content: ""; position: absolute; width: 140px; height: 140px; right: -80px; top: -80px; border-radius: 50%; background: var(--glow); filter: blur(4px); opacity: .15; pointer-events: none; }
+    .card:hover { transform: translateY(-4px); border-color: #43534a; background: var(--panel-hover); }
+    .card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 12px 35px rgba(0,0,0,.18); }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .icon {
+      width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px;
+      color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+    }
+    .tag { padding: 6px 9px; border-radius: 99px; background: rgba(255,255,255,.055); color: #c4ced8; font-size: 10px; font-weight: 750; }
+    .card h3 { margin: 22px 0 0; font-size: 19px; letter-spacing: -.035em; }
+    .card p { min-height: 44px; margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 23px; }
+    .learn { color: var(--accent); font-size: 12px; font-weight: 800; }
+    .arrow { display: inline-grid; place-items: center; width: 31px; height: 31px; border-radius: 10px; border: 1px solid var(--line); color: #dce4ec; }
+    .empty { grid-column: 1/-1; padding: 30px; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); text-align: center; }
+    .details { display: none; margin-top: 22px; padding: 24px; border: 1px solid rgba(85,223,135,.25); border-radius: var(--radius); background: rgba(85,223,135,.045); }
+    .details.show { display: block; animation: rise .22s ease-out; }
+    .details h3 { margin: 0; font-size: 19px; }
+    .details p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .details-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 17px; }
+    .name-input { min-width: 210px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 11px; outline: none; background: #0c1117; color: var(--text); }
+    .feature-strip { border-block: 1px solid rgba(255,255,255,.07); background: #0e1319; padding: 28px 0; }
+    .features { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .feature { display: flex; align-items: flex-start; gap: 12px; }
+    .check { flex: none; display: grid; place-items: center; width: 27px; height: 27px; border-radius: 9px; color: var(--green); background: rgba(85,223,135,.1); }
+    .feature strong { display: block; font-size: 13px; }
+    .feature span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    footer { padding: 26px 0; color: #778391; font-size: 12px; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .footer-links { display: flex; gap: 18px; }
+    .footer-links a:hover { color: var(--text); }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 20; max-width: min(360px, calc(100% - 40px)); padding: 14px 17px; border: 1px solid var(--line); border-radius: 13px; background: #171f28; box-shadow: 0 15px 45px #0008; font-size: 13px; display: none; }
+    .toast.show { display: block; animation: rise .2s ease-out; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 800px) { .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .navlinks { gap: 15px; } .section-head { align-items: flex-start; flex-direction: column; } .search { width: 100%; } }
+    @media (max-width: 560px) { .wrap { width: min(100% - 28px, 1120px); } .nav { height: 64px; } .navlinks { display: none; } .hero { padding: 70px 0 58px; } .grid, .features { grid-template-columns: 1fr; } .card { min-height: 255px; } .footer-inner { align-items: flex-start; flex-direction: column; } .section { padding-bottom: 55px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <a class="brand" href="#" aria-label="NOVA home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-3 8h7l-6 12 1-9H5l8-11Z"/></svg>
+        </span>
+        NOVA
+      </a>
+      <nav class="navlinks" aria-label="Main navigation">
+        <a href="#options">Options</a><a href="#benefits">Benefits</a><a href="#about">About</a>
+      </nav>
+      <a class="button button-primary" href="#options">Get started <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <span class="eyebrow"><span class="pulse"></span> Your next step starts here</span>
+        <h1>Find your flow.<br><span>Make it happen.</span></h1>
+        <p class="hero-copy">Choose the experience that fits you. A clean, simple starting point for your next idea—without unnecessary steps.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#options">Explore options <span aria-hidden="true">↓</span></a>
+          <a class="button button-ghost" href="#benefits">Why NOVA?</a>
+        </div>
+        <div class="trust"><span class="pulse"></span><span><strong>Simple by design.</strong> Your choice stays on this page.</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="options">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="section-kicker">Choose your path</p><h2>One place. Six possibilities.</h2><p class="section-desc">Select a card to see its details and continue.</p></div>
+          <label><span style="position:absolute;clip:rect(0,0,0,0)">Search options</span><input class="search" id="search" type="search" placeholder="Search options…" autocomplete="off"></label>
+        </div>
+        <div class="grid" id="grid" aria-live="polite"></div>
+        <section class="details" id="details" aria-live="polite">
+          <h3 id="detailTitle">Your selection</h3>
+          <p id="detailCopy"></p>
+          <div class="details-row">
+            <label><span style="position:absolute;clip:rect(0,0,0,0)">Your name (optional)</span><input class="name-input" id="visitorName" maxlength="60" placeholder="Your name (optional)" autocomplete="name"></label>
+            <button class="button button-primary" id="continueBtn" type="button">Continue <span aria-hidden="true">→</span></button>
+            <button class="button button-ghost" id="clearBtn" type="button">Cancel</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="feature-strip" id="benefits">
+      <div class="wrap features">
+        <div class="feature"><span class="check">✓</span><div><strong>Clear choices</strong><span>Easy-to-understand options with no confusing flow.</span></div></div>
+        <div class="feature"><span class="check">✓</span><div><strong>Privacy-minded</strong><span>No camera access, tracking pixels, or background uploads.</span></div></div>
+        <div class="feature"><span class="check">✓</span><div><strong>Responsive design</strong><span>Works on desktop, tablet, and mobile screens.</span></div></div>
+      </div>
+    </section>
+    <section class="section" id="about" style="padding-bottom:58px">
+      <div class="wrap" style="max-width:760px;text-align:center">
+        <p class="section-kicker">Built for your next move</p>
+        <h2>Good things start with a choice.</h2>
+        <p class="section-desc" style="max-width:560px;margin:13px auto 0">NOVA keeps the experience focused. Pick a path, review the details, and decide what to do next.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap footer-inner"><a class="brand" href="#"><span class="brand-mark" aria-hidden="true">N</span> NOVA</a><span>© <span id="year"></span> NOVA. Built with care.</span><div class="footer-links"><a href="#options">Options</a><a href="#benefits">Privacy</a></div></div></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      'use strict';
+      const options = [
+        { id: 'starter', name: 'Starter', tag: 'Popular', color: '#55df87', glow: '#55df87', desc: 'Everything you need to get moving. A simple place to begin.', detail: 'Starter is a straightforward choice for exploring the basics and finding the right direction.', icon: '<path d="M13 2 3 14h7l-1 8 10-12h-7z"/>' },
+        { id: 'pro', name: 'Pro', tag: 'For builders', color: '#60a5fa', glow: '#60a5fa', desc: 'More flexibility for ambitious projects and bigger ideas.', detail: 'Pro is designed for people who want extra flexibility and room to grow their workflow.', icon: '<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>' },
+        { id: 'team', name: 'Team', tag: 'Collaborate', color: '#b69aff', glow: '#b69aff', desc: 'Bring people together around shared goals and projects.', detail: 'Team is a good fit when collaboration, shared decisions, and group workflows matter.', icon: '<circle cx="9" cy="8" r="3.3"/><path d="M3 20a6 6 0 0 1 12 0M16.5 5.4a3 3 0 0 1 0 5.6M17.5 14.6A6 6 0 0 1 21 20"/>' },
+        { id: 'studio', name: 'Studio', tag: 'Creative', color: '#fbbf24', glow: '#fbbf24', desc: 'A flexible space for makers, creators, and experiments.', detail: 'Studio is for creative exploration, trying new approaches, and turning unusual ideas into something real.', icon: '<rect x="4" y="5" width="16" height="14" rx="3"/><path d="M9 9h.01M15 15h.01M12 12h.01"/>' },
+        { id: 'custom', name: 'Custom', tag: 'Personalized', color: '#f472b6', glow: '#f472b6', desc: 'Start with your needs instead of a one-size-fits-all path.', detail: 'Custom lets you identify what matters most before deciding on a tailored next step.', icon: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/>' },
+        { id: 'surprise', name: 'Surprise me', tag: 'Explore', color: '#22d3ee', glow: '#22d3ee', desc: 'Not sure yet? Explore an option and see where it leads.', detail: 'Surprise me is a low-pressure way to explore. You can cancel at any time and choose another path.', icon: '<path d="M4 7h3a5 5 0 0 1 4 2l2 3a5 5 0 0 0 4 2h3M17 10l3 4-3 4M17 3l3 4-3 4"/>' }
+      ];
+      const grid = document.getElementById('grid');
+      const search = document.getElementById('search');
+      const details = document.getElementById('details');
+      const toast = document.getElementById('toast');
+      let selected = null;
+      let toastTimer;
+
+      const icon = (path) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+
+      function render(query = '') {
+        const q = query.trim().toLowerCase();
+        const filtered = options.filter(o => `${o.name} ${o.tag} ${o.desc}`.toLowerCase().includes(q));
+        grid.innerHTML = '';
+        if (!filtered.length) {
+          grid.innerHTML = '<div class="empty">No options match that search. Try another word.</div>';
+          return;
+        }
+        filtered.forEach(o => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = `card${selected?.id === o.id ? ' selected' : ''}`;
+          card.style.cssText = `--accent:${o.color};--glow:${o.glow};text-align:left;color:inherit;font:inherit;width:100%`;
+          card.setAttribute('aria-pressed', String(selected?.id === o.id));
+          card.innerHTML = `
+            <div class="card-top"><span class="icon">${icon(o.icon)}</span><span class="tag">${o.tag}</span></div>
+            <h3>${o.name}</h3><p>${o.desc}</p>
+            <div class="card-bottom"><span class="learn">View details</span><span class="arrow" aria-hidden="true">↗</span></div>`;
+          card.addEventListener('click', () => choose(o));
+          grid.appendChild(card);
+        });
+      }
+
+      function choose(option) {
+        selected = option;
+        document.getElementById('detailTitle').textContent = `${option.name} — your next step`;
+        document.getElementById('detailCopy').textContent = option.detail;
+        details.classList.add('show');
+        render(search.value);
+        details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3800);
+      }
+
+      search.addEventListener('input', () => render(search.value));
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        selected = null;
+        details.classList.remove('show');
+        render(search.value);
+        showToast('Selection cleared.');
+      });
+      document.getElementById('continueBtn').addEventListener('click', () => {
+        if (!selected) return;
+        const name = document.getElementById('visitorName').value.trim();
+        // Deliberately keep this interaction local: no camera, external webhook, or data upload.
+        try {
+          sessionStorage.setItem('nova_selection', JSON.stringify({
+            option: selected.id,
+            displayName: name.slice(0, 60),
+            selectedAt: new Date().toISOString()
+          }));
+        } catch (_) {}
+        showToast(`Selected ${selected.name}${name ? ` for ${name}` : ''}. This demo keeps the choice in your browser.`);
+      });
+      document.getElementById('year').textContent = new Date().getFullYear();
+      render();
+    })();
+  </script>
+</body>
+</html>
