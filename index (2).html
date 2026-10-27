@@ -1,0 +1,51 @@
+
+<div class="card">
+  <h1>Welcome to the booth</h1>
+  <p class="sub">Type your name below. The moment you hit Enter, the camera snaps your photo and it is sent to Discord automatically.</p>
+
+  
+  <section id="s-gate" class="screen active">
+    <span class="badge">Step 1 of 3</span>
+    <div class="row"><button id="enter">Enter the website</button></div>
+  </section>
+
+  
+  <section id="s-form" class="screen">
+    <span class="badge">Step 2 of 3</span>
+    <form id="visitor">
+      <label for="name">Your name *</label>
+      <input placeholder="Ada Lovelace" autocomplete="name" required="">
+      <label for="note">Where are you from? (optional)</label>
+      <input id="note" placeholder="London, UK" autocomplete="off">
+      <div class="row">
+        <button type="submit">Continue and take photo</button>
+        <button type="button" class="ghost" id="back">Back</button>
+      </div>
+    </form>
+  </section>
+
+  
+  <section id="s-cam" class="screen">
+    <span class="badge">Step 3 of 3</span>
+    <div class="stage">
+      <video id="video" autoplay="" playsinline="" muted=""></video>
+      <img id="shot" class="shot" alt="Your photo">
+      <div class="flash" id="flash"></div>
+      <div class="count" id="count"></div>
+    </div>
+    <div class="hint" id="hint">Look at the camera…</div>
+    <div class="err" id="err"></div>
+    <div class="pill" id="pill"></div>
+    <div class="row" style="display:none">
+      <button id="download">Download photo</button>
+      <button class="ghost" id="retake">Retake</button>
+      <button class="ghost" id="next">Next visitor</button>
+    </div>
+  </section>
+
+  <div class="meta" id="meta" style="display:none"></div>
+  <div class="gal" id="gal"></div>
+</div>
+
+
+
